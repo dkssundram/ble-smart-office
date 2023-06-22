@@ -1,0 +1,757 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>XYZ</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-KK94CHFLLe+nY2dmCWGMq91rCGa5gtU4mk92HdvYe+M/SXH301p5ILy+dN9+nJOZ" crossorigin="anonymous">
+  <script src="https://www.gstatic.com/firebasejs/8.4.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.4.1/firebase-database.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+</head>
+<style>
+  .bulb {
+    position: fixed;
+    top: 80px;
+    left: 1250px;
+    width: 180px;
+    height: 180px;
+    border-radius: 70%;
+    transition: all 0.3s ease-in-out;
+    transform-style: preserve-3d;
+    cursor: pointer;
+    background-image: url('https://i.ibb.co/HTYm84k/img2.jpg');
+    /* add the bulb image */
+    background-size: contain;
+    background-size: cover;
+    background-repeat: no-repeat;
+
+  }
+
+
+  .off {
+    transform: rotateX(0deg) rotateY(0deg) rotateZ(0deg);
+  }
+
+  .on {
+    box-shadow: 0 0 10px yellow, 0 0 20px yellow, 0 0 30px yellow, 0 0 40px yellow;
+    transform: rotateX(-45deg) rotateY(0deg) rotateZ(0deg);
+  }
+
+  .bulb::before {
+    content: '';
+    display: block;
+    position: absolute;
+    top: -5px;
+    left: -5px;
+    right: -5px;
+    bottom: -5px;
+    border-radius: 50%;
+    box-shadow: inset 0 0 0 10px rgba(255, 255, 255, 0.5), inset 0 0 20px rgba(255, 255, 255, 0.5);
+    /* add the transparent effect on the bulb using box-shadow */
+  }
+
+  .container {
+    position: fixed;
+    top: 40px;
+    left: 80px;
+    width: 250px;
+    height: 250px;
+  }
+
+  .electricity {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background-color: #FFC107;
+    animation: electricity 1s linear infinite alternate;
+    transform-origin: 50% 0;
+  }
+
+  .light {
+    position: absolute;
+    top: 40%;
+    left: 0;
+    width: 80px;
+    height: 80px;
+    background-color: #FFF59D;
+    border-radius: 50%;
+    box-shadow: 0 0 10px #FFF59D, 0 0 20px #FFF59D, 0 0 30px #FFF59D, 0 0 40px #FFF59D;
+    animation: light 1s linear infinite alternate;
+    transform-origin: 50% 0;
+  }
+
+  .fan {
+    position: absolute;
+    top: 60%;
+    left: 0;
+    width: 120px;
+    height: 120px;
+    background: url('https://i.ibb.co/MppbCSb/img1.jpg') no-repeat center center;
+    background-size: contain;
+    background-color: black;
+    border-radius: 50%;
+    animation: fan 1s linear infinite;
+    transform-origin: 50% 0;
+  }
+
+  @keyframes electricity {
+    0% {
+      transform: rotate(-20deg);
+    }
+
+    100% {
+      transform: rotate(20deg);
+    }
+  }
+
+  @keyframes light {
+    0% {
+      transform: rotate(-5deg);
+    }
+
+    100% {
+      transform: rotate(5deg);
+    }
+  }
+
+  @keyframes fan {
+    0% {
+      transform: rotate(-10deg);
+    }
+
+    100% {
+      transform: rotate(10deg);
+    }
+  }
+
+
+
+  .background {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.8));
+    animation: backgroundAnimation 10s ease-in-out infinite alternate;
+  }
+
+  @keyframes backgroundAnimation {
+    0% {
+      background-position: 0 0;
+    }
+
+    100% {
+      background-position: -200px -200px;
+    }
+  }
+
+  .toggle {
+    position: relative;
+    display: inline-block;
+    width: 60px;
+    height: 34px;
+  }
+
+  .myButton {
+    background-color: #4CAF50;
+    border: none;
+    color: white;
+    padding: 10px 20px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 10px;
+    cursor: not-allowed;
+    opacity: 0.5;
+    box-shadow: 0 5px #3e8e41;
+    transition: all 0.3s ease-in-out;
+  }
+
+  .myButton:hover {
+    background-color: #3e8e41;
+    box-shadow: 0 7px #2b5e2d;
+    transform: translateY(-2px);
+  }
+
+  .myButton:active {
+    background-color: #4CAF50;
+    box-shadow: 0 2px #3e8e41;
+    transform: translateY(2px);
+  }
+
+  .myButton:enabled {
+    cursor: pointer;
+    opacity: 1.0;
+  }
+
+  .myButton1 {
+    background-color: #f44336;
+    border: none;
+    color: white;
+    padding: 10px 20px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 10px;
+    cursor: not-allowed;
+    opacity: 0.5;
+    box-shadow: 0 5px #d32f2f;
+    transition: all 0.3s ease-in-out;
+  }
+
+  .myButton1:hover {
+    background-color: #d32f2f;
+    box-shadow: 0 7px #b71c1c;
+    transform: translateY(-2px);
+  }
+
+  .myButton1:active {
+    background-color: #f44336;
+    box-shadow: 0 2px #d32f2f;
+    transform: translateY(2px);
+  }
+
+  .myButton1:enabled {
+    cursor: pointer;
+    opacity: 1.0;
+
+  }
+
+  /* Your CSS code in a separate style sheet */
+  .payment {
+    display: none;
+    width: 300px;
+    height: 400px;
+    background-color: white;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    margin: auto;
+    padding: 10px 50px;
+
+    flex-direction: column;
+    -webkit-box-shadow: 0px 0px 13px 2px rgba(0, 0, 0, 0.3);
+    box-shadow: 0px 0px 13px 2px rgba(0, 0, 0, 0.3);
+  }
+
+  .payTitle {
+    font-size: 20px;
+    color: rgb(0, 4, 255);
+  }
+
+  .close {
+    width: 20px;
+    height: 20px;
+    position: absolute;
+    background-color: gray;
+    color: white;
+    top: 10px;
+    right: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    padding: 2px;
+  }
+
+  .mbutton {
+    background-color: rgb(108, 6, 243);
+    border: none;
+    color: white;
+    padding: 10px 20px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 10px;
+    cursor: not-allowed;
+    opacity: 0.5;
+    box-shadow: 0 5px #3d00ad;
+    transition: all 0.3s ease-in-out;
+  }
+
+  .mbutton:hover {
+    background-color: #b500fd;
+    box-shadow: 0 7px #4c0094;
+    transform: translateY(-2px);
+  }
+
+  .mbutton:active {
+    background-color: #008bdb;
+    box-shadow: 0 2px #0036ac;
+    transform: translateY(2px);
+  }
+
+  .mbutton:enabled {
+    cursor: pointer;
+    opacity: 1.0;
+  }
+
+  .payment label {
+    font-weight: bold;
+    margin-right: 5px;
+  }
+
+  .payment span {
+    font-weight: normal;
+  }
+
+  .toggle {
+    position: relative;
+    display: inline-block;
+    width: 60px;
+    height: 34px;
+  }
+
+  .toggle input {
+    display: none;
+  }
+
+  .slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #f44336;
+    transition: .4s;
+  }
+
+  .slider:before {
+    position: absolute;
+    content: "";
+    height: 26px;
+    width: 26px;
+    left: 4px;
+    bottom: 4px;
+    background-color: white;
+    transition: .4s;
+  }
+
+  input:checked+.slider {
+    background-color: #4CAF50;
+  }
+
+  input:focus+.slider {
+    box-shadow: 0 0 1px #4CAF50;
+  }
+
+  input:checked+.slider:before {
+    transform: translateX(26px);
+  }
+
+  .slider.round {
+    border-radius: 34px;
+  }
+
+  .masthead {
+    background-size: 100% 100%;
+    min-height: 100vh;
+    position: relative;
+    text-shadow: 2px 2px 2px rgba(0, 0, 0, .2);
+    background-position: center center;
+    background-repeat: no-repeat;
+
+  }
+
+  .myButton,
+  .myButton1 {
+    padding: 10px 20px;
+    border: none;
+    color: #fff;
+    border-radius: 5px;
+    font-size: 18px;
+    cursor: pointer;
+    animation: btnAnimation 1s ease-in-out infinite;
+  }
+
+  @keyframes btnAnimation {
+    0% {
+      transform: translateX(0);
+    }
+
+    50% {
+      transform: translateX(10px);
+    }
+
+    100% {
+      transform: translateX(0);
+    }
+  }
+
+  .mbutton {
+    display: inline-block;
+    padding: 10px 20px;
+    background-color: #3498db;
+    color: #fff;
+    font-size: 20px;
+    font-weight: bold;
+    border: none;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+    transition: all 0.3s ease-out;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .btn:before {
+    content: "";
+    position: absolute;
+    top: -120%;
+    left: -120%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0) 80%);
+    transform: scale(0);
+    transition: all 0.5s cubic-bezier(0.55, 0.085, 0.68, 0.53);
+  }
+
+  .btn:hover:before {
+    top: -30%;
+    left: -30%;
+    transform: scale(3);
+  }
+
+  .btn:after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(255, 255, 255, 0.2);
+    opacity: 0;
+    transition: all 0.3s ease-out;
+  }
+
+  .slider.round:before {
+    border-radius: 50%;
+  }
+
+
+  .btn:hover:after {
+    opacity: 1;
+  }
+
+  .btn:hover {
+    background-color: #2980b9;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    transform: translateY(-2px);
+  }
+</style>
+
+<body class="masthead" style="background-image: url('https://i.ibb.co/LxCbmNr/bground.jpg');">
+  <!-- <p> <label class="toggle">
+    <input type="checkbox" id="toggleButton">
+    <span class="slider round"></span>
+
+</label></p> -->
+  <div class="masthead">
+    <div class="color-overlay d-flex justify-content-center align-items-center">
+      <div class=" text-white  badge fs-3" style="width: 20rem top 30rem;">
+        BLE Triggered Smart Office
+      </div>
+    </div>
+
+
+    <div class="color-overlay d-flex justify-content-center align-items-center">
+
+      <p>
+      <div class="bulb off"></div>
+      <label class="toggle">
+        <input type="checkbox" id="toggleButton" class="manual ">
+        <span class="slider round"></span>
+        <!-- <input type="checkbox" id="toggleButton" class="manual">
+      <span class="slider round"></span> -->
+      </label></p>
+    </div>
+    <div class="color-overlay d-flex justify-content-center align-items-center">
+
+
+
+      <button id="button1" onclick="handleButtonClick('1');" class="myButton">On</button>
+      <button id="button2" onclick="handleButtonClick('0');  handleget();" class="myButton"
+        style="background-color:red">Off</button><br>
+    </div>
+    <br>
+    <div class="color-overlay d-flex justify-content-center align-items-center">
+      <button id="button3" onclick="handleButtonClick1('1');" class="myButton1"
+        style="background-color:rgb(66, 199, 66)">On</button>
+      <button id="button4" onclick="handleButtonClick1('0');  handleget1();" class="myButton1">Off</button>
+      <br>
+    </div>
+
+
+    <div class="container">
+      <div class="electricity"></div>
+      <div class="light"></div>
+      <div class="fan"></div>
+    </div>
+    <div class="color-overlay d-flex justify-content-center align-items-center">
+      <button id="button5" class="mbutton" onclick="handleBill('button5')">Calculate Energy Used</button>
+    </div>
+
+    <div class="color-overlay d-flex justify-content-start align-items-center">
+      <div class="payment" id="myDiv">
+        <h1 class="payTitle">Energy Bill</h1>
+        <label for="lightEnergy">Total energy used by Light:</label>
+        <span id="lightEnergy">100 kWh</span>
+        <br>
+        <label for="pcEnergy">Total energy used by PC:</label>
+        <span id="pcEnergy">50 kWh</span>
+        <br>
+        <label for="totalEnergy">Total energy used:</label>
+        <span id="totalEnergy">150 kWh</span>
+        <br>
+        <span class="close">X</span>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    var firebaseConfig = {
+      apiKey: "AIzaSyBT-EymKADS4s4bmPyYZqACc8Z3S8hzkeM",
+      authDomain: "toggle-button-18a04.firebaseapp.com",
+      databaseURL: "https://toggle-button-18a04-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId: "toggle-button-18a04",
+      storageBucket: "toggle-button-18a04.appspot.com",
+      messagingSenderId: "872193416756",
+      appId: "1:872193416756:web:1a6a65dda4d0f7554e3461",
+      measurementId: "G-6CF18E5BN2"
+    };
+
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+
+
+    var button1 = document.getElementById('button1');
+    var button2 = document.getElementById('button2');
+    var button3 = document.getElementById('button3');
+    var mcb = document.getElementById('toggleButton')
+    var bulb = document.querySelector('.bulb');
+
+    $(document).ready(function () {
+      var database = firebase.database();
+      var Led1Status;
+      var PCStatus;
+      var mcb;
+      database.ref().on("value", function (snap) {
+        Led1Status = snap.val().Led1Status;
+        PCStatus = snap.val().PCStatus;
+        mcb = snap.val().mcb;
+        if (Led1Status == "1") {
+          document.getElementById("button1").disabled = true;
+          document.getElementById("button2").disabled = false;
+        } else {
+          document.getElementById("button1").disabled = false;
+          document.getElementById("button2").disabled = true;
+        }
+        if (PCStatus == "1") {
+          document.getElementById("button3").disabled = true;
+          document.getElementById("button4").disabled = false;
+        } else {
+          document.getElementById("button4").disabled = true;
+          document.getElementById("button3").disabled = false;
+        }
+        if (mcb == "1") {
+          document.getElementById("toggleButton").checked = true;
+          document.getElementById("button1").style.display = "block";
+          document.getElementById("button2").style.display = "block";
+          document.getElementById("button3").style.display = "block";
+          document.getElementById("button4").style.display = "block";
+          bulb.classList.remove('off');
+          bulb.classList.add('on');
+
+        } else {
+          document.getElementById("toggleButton").checked = false;
+          document.getElementById("button1").style.display = "none";
+          document.getElementById("button2").style.display = "none";
+          document.getElementById("button3").style.display = "none";
+          document.getElementById("button4").style.display = "none";
+
+          bulb.classList.remove('on');
+          bulb.classList.add('off');
+        }
+
+      });
+      $(".myButton").click(function () {
+        var firebaseRef = firebase.database().ref().child("Led1Status");
+        console.log("irebaseRef");
+        if (Led1Status == "1") {    // post to firebase
+          firebaseRef.set("0");
+          Led1Status = "0";
+
+        } else {
+          firebaseRef.set("1");
+          Led1Status = "1";
+        }
+      })
+      $(".myButton1").click(function () {
+        var firebaseRef = firebase.database().ref().child("PCStatus");
+        console.log("irebaseRef");
+        if (PCStatus == "1") {    // post to firebase
+          firebaseRef.set("0");
+          PCStatus = "0";
+        } else {
+          firebaseRef.set("1");
+          PCStatus = "1";
+        }
+      })
+      $(".manual").click(function () {
+        var firebaseRef = firebase.database().ref().child("mcb");
+        console.log("irebaseRef");
+        if (mcb == "1") {    // post to firebase
+          firebaseRef.set("0");
+          mcb = "0";
+        }
+        else {
+          firebaseRef.set("1");
+          mcb = "1";
+        }
+      })
+    });
+  </script>
+
+  <script>
+    //    function toggleBulb() {
+    //   var bulb = document.querySelector('.bulb');
+    //   if (bulb.classList.contains('off')) {
+    //     bulb.classList.remove('off');
+    //     bulb.classList.add('on');
+    //   } else {
+    //     bulb.classList.remove('on');
+    //     bulb.classList.add('off');
+    //   }
+    // }
+    function handleButtonClick(buttonId) {
+      const xhttp = new XMLHttpRequest();
+      xhttp.onreadystatechange = function () {
+        if (this.readyState == 4 && this.status == 200) {
+          console.log(this.responseText);
+        }
+      };
+      xhttp.open('POST', '/button', true);
+      xhttp.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+      const value = encodeURIComponent(buttonId);
+      const data = `value=${value}`;
+      xhttp.send(data);
+    }
+    function handleget(buttonId) {
+      //get request
+      var xhr = new XMLHttpRequest();
+      xhr.open('GET', '/button', true);
+      xhr.onreadystatechange = function () {
+        if (xhr.readyState === XMLHttpRequest.DONE) {
+          if (xhr.status === 200) {
+            // Request completed successfully
+            var data = JSON.parse(xhr.responseText);
+            // Handle retrieved data
+            console.log(data);
+          } else {
+            // Handle error
+            console.error('Error fetching data:', xhr.statusText);
+          }
+        }
+      };
+      xhr.send();
+
+    }
+    function handleButtonClick1(buttonId) {
+      const xhttp = new XMLHttpRequest();
+      xhttp.onreadystatechange = function () {
+        if (this.readyState == 4 && this.status == 200) {
+          console.log(this.responseText);
+        }
+      };
+      xhttp.open('POST', '/pc', true);
+      xhttp.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+      const value = encodeURIComponent(buttonId);
+      const data = `value=${value}`;
+      xhttp.send(data);
+    }
+    function handleget1(buttonId) {
+      //get request
+      var xhr = new XMLHttpRequest();
+      xhr.open('GET', '/pc', true);
+      xhr.onreadystatechange = function () {
+        if (xhr.readyState === XMLHttpRequest.DONE) {
+          if (xhr.status === 200) {
+            // Request completed successfully
+            var data = JSON.parse(xhr.responseText);
+            // Handle retrieved data
+            console.log(data);
+          } else {
+            // Handle error
+            console.error('Error fetching data:', xhr.statusText);
+          }
+        }
+      };
+      xhr.send();
+    }
+  </script>
+  <script>
+    function handleBill(buttonId) {
+      // Retrieve total value from server using fetch
+      const span = document.getElementById('totalEnergy');
+      const span1 = document.getElementById('lightEnergy');
+      const span2 = document.getElementById('pcEnergy');
+
+      fetch('/total')
+        .then(response => response.text())
+        .then(total => {
+          span.innerHTML = total + " kWh";
+        })
+        .catch(error => console.error(error));
+
+      fetch('/lightEnergy')
+        .then(response => response.text())
+        .then(lightEnergy => {
+          span1.innerHTML = lightEnergy + " kWh";
+        })
+        .catch(error => console.error(error));
+
+      fetch('/pcEnergy')
+        .then(response => response.text())
+        .then(pcEnergy => {
+          span2.innerHTML = pcEnergy + " kWh";
+        })
+        .catch(error => console.error(error));
+
+    }
+  </script>
+  <script>
+    var myDiv = document.getElementById('myDiv');
+    var myButton = document.getElementById('button5');
+    var closeButton = document.querySelector('.close');
+
+
+    // Add a click event listener to the button
+    myButton.addEventListener('click', function () {
+      // Change the display property of the div to 'block'
+      myDiv.style.display = 'block';
+    });
+
+    closeButton.addEventListener('click', function () {
+      // Change the display property of the div to 'none' to close it
+      myDiv.style.display = 'none';
+    });
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-ENjdO4Dr2bkBIFxQpeoTz1HIcje39Wm4jDKdf19U8gI4ddQ3GYNS7NTKfAdVQSZe"
+    crossorigin="anonymous"></script>
+</body>
+
+</html>
